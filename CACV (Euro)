@@ -1,0 +1,18 @@
+CACV (Euro) = if(fConsolidated[Fee Type] = "SaaS",
+fConsolidated[ACV (Euro - Calculated Column)]*2,
+
+
+if(fConsolidated[Fee Type] = "Perpetual",fConsolidated[AmountEuro_Calculated Column]*0.33,
+
+if(fConsolidated[Fee Type] = "Support",fConsolidated[ACV (Euro - Calculated Column)]*0.33,
+
+if(fConsolidated[Fee Type] = "Rentals",
+fConsolidated[ACV (Euro - Calculated Column)]*1.5,
+
+if(fConsolidated[Fee Type] = "Services",
+if(fConsolidated[Service_Margin]<20,fConsolidated[ACV (Euro - Calculated Column)]*0.2,
+if(fConsolidated[Service_Margin]>=20,fConsolidated[ACV (Euro - Calculated Column)]*0.33)),
+
+fConsolidated[ACV (Euro - Calculated Column)])
+
+))))
