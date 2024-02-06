@@ -1,0 +1,7 @@
+ACV = 
+VAR ACV =
+SUMX(
+    fConsolidated,
+    (fConsolidated[AmountGBP (Excl Zero)] / fConsolidated[Term (Run Rate)])*12)
+
+RETURN If(ACV = 0, BLANK(), ACV)
