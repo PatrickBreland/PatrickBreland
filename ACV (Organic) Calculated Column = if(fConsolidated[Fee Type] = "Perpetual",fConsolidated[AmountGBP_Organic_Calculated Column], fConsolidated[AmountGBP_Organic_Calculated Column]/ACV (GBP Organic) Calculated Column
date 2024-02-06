@@ -1,1 +1,7 @@
-ACV (Organic) Calculated Column = if(fConsolidated[Fee Type] = "Perpetual",fConsolidated[AmountGBP_Organic_Calculated Column], fConsolidated[AmountGBP_Organic_Calculated Column]/ if(fConsolidated[Term] < 13,12,fConsolidated[Term])*12)
+ACV (Organic) Calculated Column = 
+
+if(fConsolidated[Fee Type] = "Perpetual",fConsolidated[AmountGBP_Organic_Calculated Column], 
+
+fConsolidated[AmountGBP_Organic_Calculated Column]/ if(fConsolidated[Term] < 13,12,
+
+fConsolidated[Term])*12)
