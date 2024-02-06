@@ -1,0 +1,6 @@
+ACV (Euro - Calculated Column) = 
+
+if(fConsolidated[Fee Type] = "Perpetual",fConsolidated[AmountEuro_Calculated Column], 
+
+fConsolidated[AmountEuro_Calculated Column]/ 
+if(fConsolidated[Term] < 13,12,fConsolidated[Term])*12)
