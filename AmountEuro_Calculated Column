@@ -1,0 +1,4 @@
+AmountEuro_Calculated Column = 
+
+fConsolidated[AMT_Transaction]/
+LOOKUPVALUE(Exchange_Rates[ConversionRateEuro],Exchange_Rates[FiscalYear],fConsolidated[Fiscal Year],Exchange_Rates[CurrencyCode],fConsolidated[Currency Code])
