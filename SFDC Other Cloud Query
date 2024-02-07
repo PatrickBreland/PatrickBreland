@@ -1,0 +1,95 @@
+select 
+'SFDC - Other' as 'SystemSource',
+a.[AVEVA_OSIsoft_Mix__c],
+a.Name as 'OpportunityName',
+a.Term_of_Opportunity__c as 'Opportunity Type',
+----g.[name] as  'Direct v Indirect',
+a.[SE_Reference_Number__c] as 'Order Number', 
+b.id as 'Order Line Number',
+a.[D365_Opportunity_Number__c] as 'D365 Number',
+a.id as 'SFDC Opportunity ID',
+-----a.D365_Opportunity_Number__c as 'D365 Number',
+c.[Name] as 'Opportunity Owner',
+g.[name] as 'Direct/Indirect',
+----case when i.[Name] is null then 'No Primary Partner Given' ELSE i.[Name] end as 'Primary Partner',
+---modified to below to populate Partners not given on Opportunity Partner object
+COALESCE(i.[Name],m.[name],'No Primary Partner Given') as 'Primary Partner',
+-----COALESCE(i.Account_Sub_Type__c,m.Account_Sub_Type__c,i.[Account_Type_Account_Sub_Type__c],m.[Account_Type_Account_Sub_Type__c]) as 'Partner Type (Source)',
+closedate as 'Order Date',
+d.[Name] as 'Customer',
+a.AccountId as CustomerNumber,
+---d.[Type] as 'Customer Type',
+k.[Name] as 'Third Party Name',
+j.[Role] as 'Third Party Type',
+a.[CurrencyIsoCode] as 'Currency Code',
+ 
+-----COALESCE(b.[Total_Product_Based_Price__c],b.TotalPrice) as amt_curr,
+b.[Total_Product_Based_Price__c] as amt_curr,
+b.Quantity as 'Qty',
+b.Span__c as 'Term (Month)',
+---b.Hosting__c,
+---b.Deal_Type__c as 'Product Deal Type',
+b.ServiceDate as 'Contract Start Date',
+DATEADD(day,-1,DateADD(month,b.Span__c,b.ServiceDate)) as 'Contract End Date',
+a.[PO_Number__c] as 'PO Number',
+a.Opp_Region__c as 'Region (Source)',
+a.Opp_Market__c as 'Market (Source)',
+b.id as 'part_number',
+f.Description as part_desc,
+---null as 'businessunitcode',
+---f.Primary_Segment__c as primarysegmentcode,
+---f.Secondary_Segment__c as secondarysegmentcode,
+---f.Sub_Category__c,
+---f.Product_Line_Number__c as 'Product Line Code',
+---f.Revenue_Stream__c as 'Stream',
+NULL as 'Auto Channel Select',
+----d.[BillingCountry] as 'Customer Country',
+a.[Country_of_Destination__c] as 'Country (Source)',
+a.[Co_Sell__c]
+
+ FROM [dbo].[AvevaSF_Opportunity] a
+  left join
+  [dbo].[AvevaSF_OpportunityLineItem] as b on a.Id = b.OpportunityId
+  left join
+  [dbo].[AvevaSF_User] as c on a.[OwnerId] = c.id
+  left join
+  [dbo].[AvevaSF_Account] as d on a.AccountId = d.id
+  left join 
+  [dbo].[AvevaSF_User] as e on a.[PartnerAccountId] = e.id
+  left join
+  [dbo].[AvevaSF_Product2] as f on b.Product2Id = f.id
+  left join
+  [dbo].[AvevaSF_RecordType] as g on a.RecordTypeId = g.Id
+  left join
+  [dbo].[AvevaSF_Account] as m on a.ImpartnerPRM__PartnerAccount__c = m.id
+  left join
+  (select x.[OpportunityId], x.[AccountToId]
+from
+(
+select [OpportunityId], [AccountToId],row_number() over (partition by [OpportunityId] order by [LastModifiedDate] desc) as rownum
+  from [dbo].[AvevaSF_OpportunityPartner] 
+  where [IsPrimary] = 'true' 
+  and [IsDeleted] = 'false'
+  group by [OpportunityId], [AccountToId],[LastModifiedDate]) x
+
+  where x.rownum = 1
+)
+  as h on a.id = h.opportunityid
+  left join
+   [dbo].[AvevaSF_Account] as i on h.AccountToId=i.Id
+   left join
+   (select q.OpportunityId,q.AccountToId,q.[Role]
+from
+(
+select OpportunityId,AccountToId,[Role],row_number() over (partition by OpportunityId order by [Role] asc, AccountToId) as rownum
+  from [dbo].[AvevaSF_OpportunityPartner] 
+  where [IsPrimary] <> 'true' and [Role] in ('OEM','System Integrator')) q
+  where q.rownum = '1') as j on a.id = j.OpportunityId
+  left join
+   [dbo].[AvevaSF_Account] as k on j.AccountToId = k.Id
+  where convert(date,a.CloseDate) >= '01-JAN-2016'  
+  and  a.Opp_Region__c <> 'China' and a.Opp_Market__c <> 'China' and isnull(i.BillingCountry,0) <> 'China'
+----and g.[name] = 'Indirect Sales Opportunities'
+  and a.StageName = 'Closed Won'
+   
+  and (b.IsDeleted = 'false' or b.IsDeleted is null)
