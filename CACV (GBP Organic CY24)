@@ -10,9 +10,6 @@ if(fConsolidated[Fee Type] = "Rentals",
 fConsolidated[ACV (Organic) Calculated Column]*1.5,
 
 if(fConsolidated[Fee Type] = "Services",
-if(fConsolidated[Service_Margin]<20,fConsolidated[ACV (Organic) Calculated Column]*0.2,
-if(fConsolidated[Service_Margin]>=20,fConsolidated[ACV (Organic) Calculated Column]*0.33,
-if(fConsolidated[Service_Margin] = BLANK(),fConsolidated[ACV (Organic) Calculated Column]*0.33
-))),
+fConsolidated[ACV]*0.33,
 
 fConsolidated[ACV (Organic) Calculated Column])))))
