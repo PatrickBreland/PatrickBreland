@@ -1,0 +1,52 @@
+select 
+
+'Dynamics' as 'SystemSource',
+a.ord_no as 'Order Number',
+a.ord_line as 'Order Line Number',
+a.SourceOrderID as 'OPA Order Number',
+CASE WHEN 
+a.[dist_report_name] in ('Industrial Software Solutions I, In') then a.[dist_name]
+WHEN
+a.[dist_report_name] in ('Internal & Inactive in AP Region') THEN a.[dist_name]
+----WHEN a.[dist_report_name] = 'Invensys in Asia Pacific Region' and a.[dist_name] in ('Schneider Electric Japan Holdings Ltd  (JP0302)','Schneider Electric Japan Holdings Ltd (JP0302)') then 'Schneider Electric Japan Holdings Ltd (JP0302)'
+ELSE a.[dist_report_name] END as 'Primary Partner',
+a.[dist_name] as 'DAX Dist Name',
+a.ord_date as 'Order Date',
+---a.cust_name as 'Customer',
+CASE WHEN a.[dist_report_name] in ('InduSoft Related Party in North America Region','InduSoft Related Party in Asia Pacific Region','InduSoft Related Party in EURA Region','Direct InduSoft in AP Region','Direct InduSoft in EURA Region','Direct InduSoft in NA Region')   then a.dist_name
+else a.custsite_name end as 'Customer',
+a.[custsite_id] as CustomerNumber,
+----CASE WHEN a.[dist_report_name] in ('InduSoft Related Party in North America Region','InduSoft Related Party in Asia Pacific Region','InduSoft Related Party in EURA Region','Direct InduSoft in AP Region','Direct InduSoft in EURA Region','Direct InduSoft in NA Region') then NULL
+
+---else cust.custsite_type_desc end as 'Customer Type',
+---CASE WHEN a.[dist_report_name] in ('InduSoft Related Party in North America Region','InduSoft Related Party in Asia Pacific Region','InduSoft Related Party in EURA Region','Direct InduSoft in AP Region','Direct InduSoft in EURA Region','Direct InduSoft in NA Region') then NULL
+---else Cust.custsite_country_shortname end as 'Customer Country',
+CASE WHEN a.[dist_report_name] in ('InduSoft Related Party in North America Region','InduSoft Related Party in Asia Pacific Region','InduSoft Related Party in EURA Region','Direct InduSoft in AP Region','Direct InduSoft in EURA Region','Direct InduSoft in NA Region') and a.cust_name <> 'Unknown' 
+and a.cust_name <> a.dist_name
+then a.cust_name
+
+Else Third.custsite_name end as 'Third Party Name',
+CASE WHEN a.[dist_report_name] in ('InduSoft Related Party in North America Region','InduSoft Related Party in Asia Pacific Region','InduSoft Related Party in EURA Region','Direct InduSoft in AP Region','Direct InduSoft in EURA Region','Direct InduSoft in NA Region') and a.cust_name <> 'Unknown' 
+and a.cust_name <> a.dist_name
+then cust.custsite_type_desc
+else Third.[custsite_type_desc] end as 'Third Party Type',
+a.curr_code as 'Currency Code',
+sum(a.amt_curr) as amt_curr,
+sum(a.qty) as Qty,
+a.contract_term_in_months as 'Term (Month)',
+a.contract_effective_date as 'Contract Start Date',
+DATEADD(day,-1,DateADD(month,a.contract_term_in_months,a.contract_effective_date)) as 'Contract End Date',
+a.ord_po_no as 'PO Number',
+a.[dist_report_region] as 'Region (Source)',
+a.[GeoMarket] as 'Market (Source)',
+a.part_number,
+a.[part_desc],
+---Prod2.businessunitcode,
+----Prod2.primarysegmentcode,
+----prod2.secondarysegmentcode,
+----prod2.productlinecode as 'Product Line Code',
+----prod2.feetype as 'Stream',
+CASE WHEN a.oem_contract in ('0','NON-OEM') then null else a.oem_contract end as oem_contract,
+CASE WHEN a.oem_contract_name in ('0','NON-OEM') then null else a.oem_contract_name end as oem_contract_name
+----a.subscription_id as 'Subscription ID',
+ ----prod1.ProductLineCode as oldproductline
