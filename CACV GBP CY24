@@ -10,8 +10,7 @@ if(fConsolidated[Fee Type] = "Rentals",
 fConsolidated[ACV]*1.5,
 
 if(fConsolidated[Fee Type] = "Services",
-if(fConsolidated[Service_Margin]<20,fConsolidated[ACV]*0.2,
-if(fConsolidated[Service_Margin]>=20,fConsolidated[ACV]*0.33)),
+fConsolidated[ACV]*0.33,
 
 fConsolidated[ACV])
 
